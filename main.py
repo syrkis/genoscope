@@ -3,13 +3,13 @@
 # by: Aske Brunken
 
 # Imports
-from collections import _KT
 import jax
 from jax import lax
 import jax.numpy as jnp
 import requests as req
 import matplotlib.pyplot as plt
 
+import esch
 
 CODONS_LINK = "http://csg.sph.umich.edu/zhanxw/software/anno/codon.txt"
 codons = req.get(CODONS_LINK).text.lower()
@@ -27,8 +27,8 @@ with open("data.txt", "r") as f:
     )
 
 # %%
-n2i = {n: i for i, n in enumerate(list(set(nucleotides)))}
-i2n = {i: n for i, n in enumerate(list(set(nucleotides)))}
+n2i = {n: i for i, n in enumerate(list(set(x)))}
+i2n = {i: n for i, n in enumerate(list(set(x)))}
 encode = lambda x: jnp.array([n2i[n] for n in x])
 decode = lambda x: "".join([i2n[i] for i in x.tolist()])
 
@@ -37,7 +37,8 @@ decode = lambda x: "".join([i2n[i] for i in x.tolist()])
 def palin_fn(seq, n=3):  # return all pallindromes if length n in seq
     aux = jnp.arange(n // 2) + 1
     kernel = jnp.concat((aux, jnp.zeros(n % 2), -aux[::-1]))[::-1]
-    return seq, (jnp.convolve(seq, kernel, mode="same") == 0).astype(int), kernel
+    esch.tile(kernel[None, :])
+    return (jnp.convolve(seq, kernel, mode="same") == 0).astype(int)
 
 
-palin_fn(jnp.array([1, 2, 3, 2, 1, 0, 1, 2]), 5)
+palin_fn(encode(x), 10).sum() / encode(x).size
