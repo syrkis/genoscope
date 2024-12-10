@@ -3,10 +3,13 @@
 # by: Aske Brunken
 
 # Imports
+from collections import _KT
 import jax
+from jax import lax
 import jax.numpy as jnp
 import requests as req
 import matplotlib.pyplot as plt
+
 
 CODONS_LINK = "http://csg.sph.umich.edu/zhanxw/software/anno/codon.txt"
 codons = req.get(CODONS_LINK).text.lower()
@@ -31,8 +34,10 @@ decode = lambda x: "".join([i2n[i] for i in x.tolist()])
 
 
 # %%
-def palin_fn(seq, n):  # return all pallindromes if length n in seq
-    return seq, seq[::-1]
+def palin_fn(seq, n=3):  # return all pallindromes if length n in seq
+    aux = jnp.arange(n // 2) + 1
+    kernel = jnp.concat((aux, jnp.zeros(n % 2), -aux[::-1]))[::-1]
+    return seq, (jnp.convolve(seq, kernel, mode="same") == 0).astype(int), kernel
 
 
-palin_fn(encode(x)[:20], n=3)
+palin_fn(jnp.array([1, 2, 3, 2, 1, 0, 1, 2]), 5)
