@@ -16,7 +16,7 @@ b2a = {row.split("\t")[0]: row.split("\t")[1] for row in codons.strip().split("\
 # 1. find base pair dataset.
 # 2. "compile" compile basepais to codons
 with open("data.txt", "r") as f:
-    nucleotides = "".join(
+    x = "".join(
         [
             "".join([char for char in row if char in ["a", "c", "t", "g"]])
             for row in f.read().strip().split("ORIGIN")[1].split("\n")
@@ -31,9 +31,8 @@ decode = lambda x: "".join([i2n[i] for i in x.tolist()])
 
 
 # %%
-def panlindrom_fn(seq, n):  # return all pallindromes if length n in seq
-    raise NotImplementedError
+def palin_fn(seq, n):  # return all pallindromes if length n in seq
+    return seq, seq[::-1]
 
 
-# %%
-decode(encode(nucleotides))
+palin_fn(encode(x)[:20], n=3)
